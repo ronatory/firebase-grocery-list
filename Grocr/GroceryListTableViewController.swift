@@ -41,6 +41,12 @@ class GroceryListTableViewController: UITableViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
+    // eventtype .value what type to listen, add, remove and changed
+    // app is notified via the closure, the snapshot represents the most recent data
+    ref.observe(.value, with: { snapshot in
+      print(snapshot.value)
+    })
+    
     tableView.allowsMultipleSelectionDuringEditing = false
     
     userCountBarButtonItem = UIBarButtonItem(title: "1",
