@@ -91,6 +91,16 @@ class GroceryListTableViewController: UITableViewController {
       // after users go offline, close the app, they will be removed from the list
       currentUserRef.onDisconnectRemoveValue()
     }
+    
+    // creates an observer that is used to monitor online users
+    // when users go on and off it updates the current user coutn in the view
+    usersRef.observe(.value, with: { snapshot in
+      if snapshot.exists() {
+        self.userCountBarButtonItem?.title = snapshot.children.description
+      } else {
+        self.userCountBarButtonItem?.title = "0"
+      }
+    })
   }
   
   // MARK: UITableView Delegate methods
