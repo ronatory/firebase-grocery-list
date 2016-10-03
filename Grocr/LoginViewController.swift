@@ -43,6 +43,21 @@ class LoginViewController: UIViewController {
     
     let saveAction = UIAlertAction(title: "Save",
                                    style: .default) { action in
+    
+      // 1 get email and password from user via the alert
+      let emailField = alert.textFields![0]
+      let passwordField = alert.textFields![1]
+  
+      // 2 create the user
+      FIRAuth.auth()!.createUser(withEmail: emailField.text!,
+                                 password: passwordField.text!) { user, error in
+        if error == nil {
+          // 3 if no errors, user has been created
+          // you still need to authenticate this user so call signIn(withEmail:password:)
+          FIRAuth.auth()!.signIn(withEmail: self.textFieldLoginEmail.text!,
+                                 password: self.textFieldLoginPassword.text!)
+        }
+      }
                                     
     }
     
