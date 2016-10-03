@@ -100,8 +100,13 @@ class GroceryListTableViewController: UITableViewController {
   
   override func tableView(_ tableView: UITableView, commit editingStyle: UITableViewCellEditingStyle, forRowAt indexPath: IndexPath) {
     if editingStyle == .delete {
-      items.remove(at: indexPath.row)
-      tableView.reloadData()
+      // so the listener in viewDidLoad() notifies the app of the latest value of the grocery list
+      // a removal triggers a value change
+      let groceryItem = items[indexPath.row]
+      // each grocery item has a firebase reference property named ref, and calling removeValue()
+      // causes the listener to fire. the listener has a closure attached that reloads the table view
+      // using the latest data
+      groceryItem.ref?.removeValue()
     }
   }
   
