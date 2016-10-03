@@ -29,6 +29,8 @@ class GroceryListTableViewController: UITableViewController {
   /// establishes a connection to the Firebase database using the provided path
   /// in short, this property allows for saving and syncing of data to the given location
   let ref = FIRDatabase.database().reference(withPath: "grocery-items")
+  /// points to an online location that stores a list of online users
+  let usersRef = FIRDatabase.database().reference(withPath: "online")
   
   // MARK: Properties 
   var items: [GroceryItem] = []
@@ -73,7 +75,32 @@ class GroceryListTableViewController: UITableViewController {
     userCountBarButtonItem.tintColor = UIColor.white
     navigationItem.leftBarButtonItem = userCountBarButtonItem
     
-    user = User(uid: "FakeId", email: "hungry@person.food")
+    // attach an authentication observer to the Firebase auth object 
+    // that in turn assigns the user property when a user successfully signs in
+    FIRAuth.auth()!.addStateDidChangeListener { auth, user in
+      guard let user = user else { return }
+      self.user = User(authData: user)
+      
+      // 1
+      // create a child reference using a user's uid, which is generated when Firebase creates an account
+      let currentUserRef = self.usersRef.child(self.user.uid)
+      // 2
+      // use the reference to save the currents users mail
+      currentUserRef.setValue(self.user.email)
+      // 3
+      // after users go offline, close the app, they will be removed from the list
+      currentUserRef.onDisconnectRemoveValue()
+    }
+    
+    // creates an observer that is used to monitor online users
+    // when users go on and off it updates the current user coutn in the view
+    usersRef.observe(.value, with: { snapshot in
+      if snapshot.exists() {
+        self.userCountBarButtonItem?.title = snapshot.childrenCount.description
+      } else {
+        self.userCountBarButtonItem?.title = "0"
+      }
+    })
   }
   
   // MARK: UITableView Delegate methods

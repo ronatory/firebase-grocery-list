@@ -31,6 +31,10 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
   func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [NSObject : AnyObject]? = [:]) -> Bool {
     UIApplication.shared.statusBarStyle = .lightContent
     FIRApp.configure()
+    // enables offline functionality 
+    // even offline updates that occur across app restarts will apply to your Firebase database
+    // once a connection is made
+    FIRDatabase.database().persistenceEnabled = true
     return true
   }
 

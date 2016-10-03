@@ -31,9 +31,27 @@ class LoginViewController: UIViewController {
   @IBOutlet weak var textFieldLoginEmail: UITextField!
   @IBOutlet weak var textFieldLoginPassword: UITextField!
   
+  // MARK: LoginViewController Lifecycle
+  override func viewDidLoad() {
+    super.viewDidLoad()
+    
+    // 1
+    // create an authentication observer using addStateDidChangeListener(_:)
+    // the block passes two parameters
+    FIRAuth.auth()!.addStateDidChangeListener() { auth, user in
+      // 2
+      // test value of user
+      if user != nil {
+        // 3
+        // on successful login perform the segue
+        self.performSegue(withIdentifier: self.loginToList, sender: nil)
+      }
+    }
+  }
+  
   // MARK: Actions
   @IBAction func loginDidTouch(_ sender: AnyObject) {
-    performSegue(withIdentifier: loginToList, sender: nil)
+    FIRAuth.auth()!.signIn(withEmail: textFieldLoginEmail.text!, password: textFieldLoginPassword.text!)
   }
   
   @IBAction func signUpDidTouch(_ sender: AnyObject) {
@@ -43,6 +61,21 @@ class LoginViewController: UIViewController {
     
     let saveAction = UIAlertAction(title: "Save",
                                    style: .default) { action in
+    
+      // 1 get email and password from user via the alert
+      let emailField = alert.textFields![0]
+      let passwordField = alert.textFields![1]
+  
+      // 2 create the user
+      FIRAuth.auth()!.createUser(withEmail: emailField.text!,
+                                 password: passwordField.text!) { user, error in
+        if error == nil {
+          // 3 if no errors, user has been created
+          // you still need to authenticate this user so call signIn(withEmail:password:)
+          FIRAuth.auth()!.signIn(withEmail: self.textFieldLoginEmail.text!,
+                                 password: self.textFieldLoginPassword.text!)
+        }
+      }
                                     
     }
     
