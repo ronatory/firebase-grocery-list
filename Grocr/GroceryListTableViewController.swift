@@ -26,11 +26,15 @@ class GroceryListTableViewController: UITableViewController {
 
   // MARK: Constants
   let listToUsers = "ListToUsers"
+  /// establishes a connection to the Firebase database using the provided path
+  /// in short, this property allows for saving and syncing of data to the given location
+  let ref = FIRDatabase.database().reference(withPath: "grocery-items")
   
   // MARK: Properties 
   var items: [GroceryItem] = []
   var user: User!
   var userCountBarButtonItem: UIBarButtonItem!
+
   
   // MARK: UIViewController Lifecycle
   
@@ -108,13 +112,26 @@ class GroceryListTableViewController: UITableViewController {
                                   preferredStyle: .alert)
     
     let saveAction = UIAlertAction(title: "Save",
-                                   style: .default) { action in
-      let textField = alert.textFields![0] 
-      let groceryItem = GroceryItem(name: textField.text!,
-                                    addedByUser: self.user.email,
-                                    completed: false)
-      self.items.append(groceryItem)
-      self.tableView.reloadData()
+                                   style: .default) { _ in
+                                    
+      // 1
+      // get textfield and its text from the alert controller
+      guard let textField = alert.textFields?.first,
+        let text = textField.text else { return }
+                                    
+      // 2
+      // create new grocery item which is not completd
+      let groceryItem = GroceryItem(name: text, addedByUser: self.user.email, completed: false)
+                                    
+      // 3 
+      // create a child reference. even when user add duplicated values, the latest will be saved
+      let groceryItemRef = self.ref.child(text.lowercased())
+      
+      // 4
+      // use set value to save in the database
+      // method expects a dictionary, you can call toAnyObject which turns it into a dictionary
+      groceryItemRef.setValue(groceryItem.toAnyObject())
+                                    
     }
     
     let cancelAction = UIAlertAction(title: "Cancel",
