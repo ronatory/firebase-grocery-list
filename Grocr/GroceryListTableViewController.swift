@@ -73,7 +73,13 @@ class GroceryListTableViewController: UITableViewController {
     userCountBarButtonItem.tintColor = UIColor.white
     navigationItem.leftBarButtonItem = userCountBarButtonItem
     
+    // attach an authentication observer to the Firebase auth object 
+    // that in turn assigns the user property when a user successfully signs in
     user = User(uid: "FakeId", email: "hungry@person.food")
+    FIRAuth.auth()!.addStateDidChangeListener { auth, user in
+      guard let user = user else { return }
+      self.user = User(authData: user)
+    }
   }
   
   // MARK: UITableView Delegate methods
