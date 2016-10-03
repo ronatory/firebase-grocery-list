@@ -41,10 +41,27 @@ class GroceryListTableViewController: UITableViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
     
-    // eventtype .value what type to listen, add, remove and changed
-    // app is notified via the closure, the snapshot represents the most recent data
+    // 1
+    // listener to receive updates whenever the grocery-items endpoint is modified
     ref.observe(.value, with: { snapshot in
-      print(snapshot.value)
+      // 2
+      // store latest version of data in local variable
+      var newItems: [GroceryItem] = []
+      
+      // 3
+      // Using children, loop through the grocery items from database
+      for item in snapshot.children {
+        // 4
+        // groceryItem struct has an initializer that populates the properties using FIRDataSnapshot
+        // after creating an instance, it's added to the array that contains the latest versio of data
+        let groceryItem = GroceryItem(snapshot: item as! FIRDataSnapshot)
+        newItems.append(groceryItem)
+      }
+      
+      // 5 
+      // reassign items to the latest version of the data and reload table
+      self.items = newItems
+      self.tableView.reloadData()
     })
     
     tableView.allowsMultipleSelectionDuringEditing = false
