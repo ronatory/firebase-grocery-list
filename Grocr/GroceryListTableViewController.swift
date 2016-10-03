@@ -96,7 +96,7 @@ class GroceryListTableViewController: UITableViewController {
     // when users go on and off it updates the current user coutn in the view
     usersRef.observe(.value, with: { snapshot in
       if snapshot.exists() {
-        self.userCountBarButtonItem?.title = snapshot.children.description
+        self.userCountBarButtonItem?.title = snapshot.childrenCount.description
       } else {
         self.userCountBarButtonItem?.title = "0"
       }
